@@ -38,9 +38,7 @@ class SlackSemaphoreIntegration < Sinatra::Application
       commit = payload["commit"]
       text = "#{message} #{payload["result"].capitalize}: #{commit["message"]} - #{commit["author_name"]}"
 
-      body = <<-BODY
-        payload={"text": "#{text}"}
-      BODY
+      body = { text: "#{text}" }.to_json
 
       HTTParty.post(ENV['SLACK_WEBHOOK_URL'], body: body)
     end
