@@ -30,9 +30,6 @@ class SlackSemaphoreIntegration < Sinatra::Application
 
   post "/only_failed/:branch" do
     payload = JSON.parse(request.body.read)
-    token = params[:token]
-    channel = params[:channel]
-    subdomain = params[:subdomain]
     branch = params[:branch]
 
     if payload["branch_name"] == branch && payload["result"] == 'failed'
@@ -42,11 +39,10 @@ class SlackSemaphoreIntegration < Sinatra::Application
       text = "#{message} #{payload["result"].capitalize}: #{commit["message"]} - #{commit["author_name"]}"
 
       body = <<-BODY
-        payload={"channel": "#{channel}", "username": "Semaphore", "text": "#{text}", "icon_emoji": ":x:"}
+        payload={"text": "#{text}"}
       BODY
 
-      HTTParty.post("https://#{subdomain}.slack.com/services/hooks/incoming-webhook?token=#{token}",
-        body: body)
+      HTTParty.post(ENV['SLACK_WEBHOOK_URL'], body: body)
     end
   end
 end
